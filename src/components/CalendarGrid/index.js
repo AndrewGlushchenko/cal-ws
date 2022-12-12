@@ -19,6 +19,7 @@ const CellWrapper = styled.div`
 
 const RowInCell = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: ${props => props.justifyContent ? props.justifyContent : 'flex-start'};
   ${props => props.pr && `padding-right: ${props.pr * 8}px`};
 `;
@@ -32,7 +33,7 @@ const DayWrapper = styled.div`
   margin: 2px;
 `;
 
-const CDayWrapper =styled.div`
+const CDayWrapper = styled.div`
   height: 100%;
   width: 100%;
   background: #f00;
@@ -42,8 +43,35 @@ const CDayWrapper =styled.div`
   justify-content: center;
 `;
 
-const CalendarGrid = ({startDay, today}) => {
-    const totalDays =42;
+const ShowDayWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const EventListWrapper = styled('ul')`
+  margin: unset;
+  list-style-position: inside;
+  padding-left: 4px;
+`;
+
+const EventItemWrapper = styled('button')`
+  position: relative;
+  left: -14px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 114px;
+  border: unset;
+  background: unset;
+  color: #DDDDDD;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+`;
+
+const CalendarGrid = ({startDay, today, totalDays, events}) => {
+
     const day = startDay.clone().subtract(1,'day');
     const daysArray = [...Array(totalDays)].map(() => day.add(1,'day').clone());
 
@@ -69,13 +97,25 @@ const CalendarGrid = ({startDay, today}) => {
                             key={dayItem.unix()}
                             isSelectedMonth={isSelectedMonth(dayItem)}
                         >
-                            <RowInCell
-                                justifyContent={'flex-end'}
-                            >
-                                <DayWrapper>
-                                    {!IsCurrentDay(dayItem) ? dayItem.format('D') :
-                                        <CDayWrapper>{dayItem.format('D')}</CDayWrapper>}
-                                </DayWrapper>
+                            <RowInCell justifyContent={'flex-end'}>
+                                <ShowDayWrapper>
+                                    <DayWrapper>
+                                        {!IsCurrentDay(dayItem) ? dayItem.format('D') :
+                                            <CDayWrapper>{dayItem.format('D')}</CDayWrapper>}
+                                    </DayWrapper>
+                                </ShowDayWrapper>
+                                <EventListWrapper>{
+                                    events.filter(event => event.date >= dayItem.format('X')
+                                        && event.date <= dayItem.clone().endOf('day').format('X'))
+                                            .map(event => (
+                                                <li key={event.id}>
+                                                    <EventItemWrapper>
+                                                        { event.title }
+                                                    </EventItemWrapper>
+                                                </li>
+                                            ))
+                                }
+                                </EventListWrapper>
                             </RowInCell>
                         </CellWrapper>
                     ))

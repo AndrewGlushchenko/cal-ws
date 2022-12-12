@@ -1,0 +1,34 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "title": "New 1",
+      "description": "event 1",
+      "date": 1670264486
+    },
+    {
+      "id": 2,
+      "title": "New 2",
+      "description": "event 2",
+      "date": 1670178086
+    },
+    {
+      "id": 3,
+      "title": "New 3",
+      "description": "event 3",
+      "date": 1670091686
+    },
+    {
+      "id": 4,
+      "title": "New 4",
+      "description": "event 4",
+      "date": 1670239286
+    },
+    {
+      "id": 5,
+      "title": "New 5",
+      "description": "event 5",
+      "date": 1670253686
+    }
+  ]
+}
