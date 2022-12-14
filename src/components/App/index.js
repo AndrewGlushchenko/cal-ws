@@ -16,8 +16,63 @@ const ShadowWrapper = styled.div`
   box-shadow: 0 0 0 1px #1A1A1A, 0 8px 20px 6px #888;
 `;
 
+const EventFormWrapper = styled.div`
+  position: absolute;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.35);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const FormWrapper = styled(ShadowWrapper)`
+  width: 320px;
+  background-color: #1E1F21;
+  color: #DDDDDD;
+  box-shadow: unset;
+`;
+
+const EventTitle = styled("input")`
+  padding: 8px 14px;
+  font-size:  .85rem;
+  width: 100%;
+  border: unset;
+  background-color: #1E1F21;
+  color: #DDDDDD;
+  outline: unset;
+  border-bottom: 1px solid #464648;
+`;
+
+const EventDescription = styled("textarea")`
+  padding: 8px 14px;
+  font-size:  .85rem;
+  width: 100%;
+  border: unset;
+  background-color: #1E1F21;
+  color: #DDDDDD;
+  outline: unset;
+  border-bottom: 1px solid #464648;
+  resize: none;
+  height: 60px;
+`;
+
+const ButtonWrapper = styled("div")`
+  padding: 8px 14px;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const url = 'http://localhost:3322';
 const totalDays = 42;
+const defaultEvent = {
+  title: '',
+  description: '',
+  date: moment().format('X')
+};
 
 function App(language, localeSpec) {
   moment.updateLocale('en', {week: {dow: 1}});
@@ -33,6 +88,10 @@ function App(language, localeSpec) {
   const todayHandler = () => setToday(moment());
   const nextHandler = () => setToday(next => next.clone().add(1,'month'));
 
+  const [method, setMethod] = useState(null);
+  const [isShowForm, setShowForm] = useState(false);
+  const [event, setEvent] = useState(null);
+
   const [events, setEvents] = useState([]);
 
   const startDateQuery = startDay.clone().format('X');
@@ -44,17 +103,107 @@ function App(language, localeSpec) {
             .then(res => setEvents(res));
     }, [today]);
 
+  const eventFormHandler = (methodName, eventForUpdate, dayItem) => {
+      console.log('doubleClick', methodName);
+      setShowForm(true);
+      setEvent(eventForUpdate || {...defaultEvent, date: dayItem.format('X')});
+      setMethod(methodName);
+  };
+
+  const cancelButtonHandler = () => {
+      setShowForm(false);
+      setEvent(null);
+  };
+
+  const changeEventHandler = (text, field) => {
+      setEvent(prevState => ({
+          ...prevState,
+      [field]: text
+      }))
+  };
+
+  const eventSaveHandler = () => {
+      const fetchUrl = method === 'Update' ? `${url}/events/${event.id}` : `${url}/events`;
+      const httpMethod = method === 'Update' ? 'PATCH' : 'POST';
+
+      fetch(fetchUrl, {
+          method: httpMethod,
+          headers:{
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(event)
+      })
+        .then(res => res.json())
+        .then(res => {
+            console.log(res);
+            if(method === 'Update') {
+              setEvents(prevState => prevState.map(eventEl => eventEl.id === res.id ? res : eventEl));
+            } else {
+              setEvents(prevState => [...prevState, res]);
+            }
+            cancelButtonHandler()
+        })
+  };
+
+  const eventRemoveHandler = () => {
+      const fetchUrl = `${url}/events/${event.id}`;
+      const httpMethod = 'DELETE';
+
+      fetch(fetchUrl, {
+          method: httpMethod,
+          headers:{
+              'Content-Type': 'application/json'
+          },
+      })
+          .then(res => res.json())
+          .then(res => {
+              console.log(res);
+              setEvents(prevState => prevState.filter(eventEl => eventEl.id !== event.id));
+              cancelButtonHandler()
+          })
+  };
+
   return (
-    <ShadowWrapper >
-      <Header />
-      <Monitor
-          today={today}
-          prevHandler = {prevHandler}
-          todayHandler = {todayHandler}
-          nextHandler = {nextHandler}
-      />
-      <CalendarGrid startDay={startDay} today={today} totalDays={totalDays} events={events} />
-    </ShadowWrapper>
+  <>
+      {
+          isShowForm ? (
+              <EventFormWrapper onClick={cancelButtonHandler} >
+                  <FormWrapper onClick={e => e.stopPropagation()} >
+                      <EventTitle
+                          value={event.title}
+                          onChange={e => changeEventHandler(e.target.value, 'title')}
+                          placeholder="Title"
+                      />
+                      <EventDescription
+                          value={event.description}
+                          onChange={e => changeEventHandler(e.target.value, 'description')}
+                          placeholder="Description"
+                      />
+                      <ButtonWrapper>
+                          <button onClick={cancelButtonHandler} >Cancel</button>
+                          <button onClick={eventSaveHandler} >{method}</button>
+                          {
+                              method === 'Update' ? (
+                                  <button onClick={eventRemoveHandler} >Remove</button>
+                              ) : null
+                          }
+                      </ButtonWrapper>
+                  </FormWrapper>
+              </EventFormWrapper>
+          ) : null
+      }
+      <ShadowWrapper >
+          <Header />
+          <Monitor
+              today={today}
+              prevHandler = {prevHandler}
+              todayHandler = {todayHandler}
+              nextHandler = {nextHandler}
+          />
+          <CalendarGrid startDay={startDay} today={today} totalDays={totalDays}
+                        events={events} eventFormHandler={eventFormHandler}/>
+      </ShadowWrapper>
+  </>
   );
 }
 
