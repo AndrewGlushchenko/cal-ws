@@ -60,10 +60,20 @@ const EventDescription = styled("textarea")`
   height: 60px;
 `;
 
-const ButtonWrapper = styled("div")`
+const ButtonsWrapper = styled("div")`
   padding: 8px 14px;
   display: flex;
   justify-content: flex-end;
+`;
+
+const ButtonWrapper = styled("button")`
+  color: ${props => props.danger ? '#f00' : '#27282A'};
+  border: 1px solid ${props => props.danger ? '#f00' : '#27282A'};
+  border-radius: 2px;
+  cursor: pointer;
+  &:not(:last-child){
+    margin-right: 2px;
+  }
 `;
 
 const url = 'http://localhost:3322';
@@ -78,11 +88,8 @@ function App(language, localeSpec) {
   moment.updateLocale('en', {week: {dow: 1}});
 
   const [today, setToday] = useState(moment())
-  //const today = moment();
   const startDay = today.clone().startOf('month').startOf('week');
-  // const endDay = moment().endOf('month').endOf('week');
 
-  // window.moment = moment;
 
   const prevHandler = () => setToday(prev => prev.clone().subtract(1,'month'));
   const todayHandler = () => setToday(moment());
@@ -104,7 +111,6 @@ function App(language, localeSpec) {
     }, [today]);
 
   const eventFormHandler = (methodName, eventForUpdate, dayItem) => {
-      console.log('doubleClick', methodName);
       setShowForm(true);
       setEvent(eventForUpdate || {...defaultEvent, date: dayItem.format('X')});
       setMethod(methodName);
@@ -179,15 +185,15 @@ function App(language, localeSpec) {
                           onChange={e => changeEventHandler(e.target.value, 'description')}
                           placeholder="Description"
                       />
-                      <ButtonWrapper>
-                          <button onClick={cancelButtonHandler} >Cancel</button>
-                          <button onClick={eventSaveHandler} >{method}</button>
+                      <ButtonsWrapper>
+                          <ButtonWrapper onClick={cancelButtonHandler} >Cancel</ButtonWrapper>
+                          <ButtonWrapper onClick={eventSaveHandler} >{method}</ButtonWrapper>
                           {
                               method === 'Update' ? (
-                                  <button onClick={eventRemoveHandler} >Remove</button>
+                                  <ButtonWrapper danger onClick={eventRemoveHandler} >Remove</ButtonWrapper>
                               ) : null
                           }
-                      </ButtonWrapper>
+                      </ButtonsWrapper>
                   </FormWrapper>
               </EventFormWrapper>
           ) : null

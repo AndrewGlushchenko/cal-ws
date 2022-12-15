@@ -7,18 +7,6 @@
       "date": 1670264486
     },
     {
-      "id": 2,
-      "title": "New 2",
-      "description": "event 2",
-      "date": 1670178086
-    },
-    {
-      "id": 3,
-      "title": "New 3",
-      "description": "event 3",
-      "date": 1670091686
-    },
-    {
       "id": 4,
       "title": "New 4",
       "description": "event 4",
@@ -37,28 +25,28 @@
       "id": 7
     },
     {
-      "title": "Ev on 15.12",
-      "description": "Date new",
-      "date": "1670884838",
-      "id": 8
-    },
-    {
-      "title": "DDD",
+      "title": "Corporative meeting",
       "description": "sss",
       "date": "1671055200",
       "id": 11
     },
     {
-      "title": "This event",
+      "title": "Project discussion",
       "description": "New event",
       "date": "1671141600",
       "id": 12
     },
     {
-      "title": "One more event",
-      "description": "De",
+      "title": "One more eve",
+      "description": "Decompilation",
       "date": "1671141600",
       "id": 13
+    },
+    {
+      "title": "ddd",
+      "description": "ffff",
+      "date": "1671141600",
+      "id": 14
     }
   ]
 }
