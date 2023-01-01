@@ -2,6 +2,7 @@ import React from "react";
 import {IsCurrentDay, isSelectedMonth} from "../../tools";
 import {CellWrapper, RowInCell} from "../../containers/StyledComponents";
 import styled from "styled-components";
+import {DISPLAY_MODE_DAY} from "../../tools/constants";
 
 const DayWrapper = styled.div`
   height: 33px;
@@ -60,7 +61,7 @@ const EventListItemWrapper = styled('li')`
   display: flex;
 `;
 
-export const CalendarCell = ({dayItem, today, eventFormHandler, events}) => {
+export const CalendarCell = ({dayItem, today, eventFormHandler, events, setDisplayMode}) => {
     return (
         <CellWrapper
             isWeekend={dayItem.day() === 6 || dayItem.day() === 0}
@@ -69,7 +70,7 @@ export const CalendarCell = ({dayItem, today, eventFormHandler, events}) => {
         >
             <RowInCell justifyContent={'flex-end'}>
                 <ShowDayWrapper>
-                    <DayWrapper onDoubleClick={(e) =>
+                    <DayWrapper onDoubleClick={() =>
                         eventFormHandler('Create', null, dayItem)}>
                         {!IsCurrentDay(dayItem) ? dayItem.format('D') :
                             <CDayWrapper>{dayItem.format('D')}</CDayWrapper>}
@@ -90,7 +91,7 @@ export const CalendarCell = ({dayItem, today, eventFormHandler, events}) => {
                 {
                     events.length > 2 ? (
                         <EventListItemWrapper key='show more'>
-                            <EventItemWrapper>
+                            <EventItemWrapper onClick={() => setDisplayMode(DISPLAY_MODE_DAY)}>
                                 show more...
                             </EventItemWrapper>
                         </EventListItemWrapper>

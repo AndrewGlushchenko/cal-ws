@@ -5,8 +5,13 @@ import {Monitor} from "../Monitor";
 import {CalendarGrid} from "../CalendarGrid";
 import styled from 'styled-components';
 import React, {useEffect, useState} from "react";
+import {DISPLAY_MODE_DAY, DISPLAY_MODE_MONTH} from "../../tools/constants";
+import {DayShow} from "../DayShow";
+import {ButtonsWrapper, ButtonWrapper, EventDescription, EventTitle} from "../../containers/StyledComponents";
 
 const ShadowWrapper = styled.div`
+  min-width: 990px;
+  height: 702px;
   border-top: 1px solid #737374;
   border-left: 1px solid #464648;
   border-right: 1px solid #464648;
@@ -14,6 +19,8 @@ const ShadowWrapper = styled.div`
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 0 0 1px #1A1A1A, 0 8px 20px 6px #888;
+  display: flex;
+  flex-direction: column;
 `;
 
 const EventFormWrapper = styled.div`
@@ -31,49 +38,11 @@ const EventFormWrapper = styled.div`
 
 const FormWrapper = styled(ShadowWrapper)`
   width: 320px;
+  min-width: 320px;
+  height: 132px;
   background-color: #1E1F21;
   color: #DDDDDD;
   box-shadow: unset;
-`;
-
-const EventTitle = styled("input")`
-  padding: 8px 14px;
-  font-size:  .85rem;
-  width: 100%;
-  border: unset;
-  background-color: #1E1F21;
-  color: #DDDDDD;
-  outline: unset;
-  border-bottom: 1px solid #464648;
-`;
-
-const EventDescription = styled("textarea")`
-  padding: 8px 14px;
-  font-size:  .85rem;
-  width: 100%;
-  border: unset;
-  background-color: #1E1F21;
-  color: #DDDDDD;
-  outline: unset;
-  border-bottom: 1px solid #464648;
-  resize: none;
-  height: 60px;
-`;
-
-const ButtonsWrapper = styled("div")`
-  padding: 8px 14px;
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const ButtonWrapper = styled("button")`
-  color: ${props => props.danger ? '#f00' : '#27282A'};
-  border: 1px solid ${props => props.danger ? '#f00' : '#27282A'};
-  border-radius: 2px;
-  cursor: pointer;
-  &:not(:last-child){
-    margin-right: 2px;
-  }
 `;
 
 const url = 'http://localhost:3322';
@@ -84,16 +53,17 @@ const defaultEvent = {
   date: moment().format('X')
 };
 
-function App(language, localeSpec) {
+function App() {
   moment.updateLocale('en', {week: {dow: 1}});
 
+  const [displayMode, setDisplayMode] = useState(DISPLAY_MODE_MONTH);
   const [today, setToday] = useState(moment())
   const startDay = today.clone().startOf('month').startOf('week');
 
 
-  const prevHandler = () => setToday(prev => prev.clone().subtract(1,'month'));
+  const prevHandler = () => setToday(prev => prev.clone().subtract(1,displayMode));
   const todayHandler = () => setToday(moment());
-  const nextHandler = () => setToday(next => next.clone().add(1,'month'));
+  const nextHandler = () => setToday(next => next.clone().add(1,displayMode));
 
   const [method, setMethod] = useState(null);
   const [isShowForm, setShowForm] = useState(false);
@@ -111,9 +81,13 @@ function App(language, localeSpec) {
     }, [today]);
 
   const eventFormHandler = (methodName, eventForUpdate, dayItem) => {
-      setShowForm(true);
       setEvent(eventForUpdate || {...defaultEvent, date: dayItem.format('X')});
       setMethod(methodName);
+  };
+
+  const eventModalFormHandler = (methodName, eventForUpdate, dayItem) => {
+      setShowForm(true);
+      eventFormHandler(methodName,eventForUpdate, dayItem);
   };
 
   const cancelButtonHandler = () => {
@@ -205,9 +179,31 @@ function App(language, localeSpec) {
               prevHandler = {prevHandler}
               todayHandler = {todayHandler}
               nextHandler = {nextHandler}
+              setDisplayMode = {setDisplayMode}
+              displayMode = {displayMode}
           />
-          <CalendarGrid startDay={startDay} today={today} totalDays={totalDays}
-                        events={events} eventFormHandler={eventFormHandler}/>
+          {
+              displayMode === DISPLAY_MODE_MONTH ? (
+                  <CalendarGrid startDay={startDay} today={today} totalDays={totalDays}
+                                events={events} eventFormHandler={eventModalFormHandler} setDisplayMode={setDisplayMode}/>
+              ): null
+          }
+          {
+              displayMode === DISPLAY_MODE_DAY ? (
+                  <DayShow
+                      events={events}
+                      today={today}
+                      selectedEvent={event}
+                      setEvent={setEvent}
+                      changeEventHandler={changeEventHandler}
+                      cancelButtonHandler={cancelButtonHandler}
+                      eventSaveHandler={eventSaveHandler}
+                      method={method}
+                      eventRemoveHandler={eventRemoveHandler}
+                      eventFormHandler={eventFormHandler}
+                  />
+              ): null
+          }
       </ShadowWrapper>
   </>
   );

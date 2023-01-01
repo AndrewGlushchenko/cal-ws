@@ -13,7 +13,7 @@ const GridWrapper = styled.div`
 `;
 
 
-const CalendarGrid = ({startDay, today, totalDays, events, eventFormHandler}) => {
+const CalendarGrid = ({startDay, today, totalDays, events, eventFormHandler, setDisplayMode}) => {
     return(
         <>
             <GridWrapper isHeader>
@@ -21,7 +21,7 @@ const CalendarGrid = ({startDay, today, totalDays, events, eventFormHandler}) =>
             </GridWrapper>
             <GridWrapper>
                 <DayList totalDays={totalDays} startDay={startDay}
-                         events={events} eventFormHandler={eventFormHandler} today={today}/>
+                         events={events} eventFormHandler={eventFormHandler} today={today} setDisplayMode={setDisplayMode}/>
             </GridWrapper>
         </>
     );
